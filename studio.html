@@ -1,0 +1,1003 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MWA Poster Studio — ระบบแก้ไขจังหวัดและสร้างโปสเตอร์ประปาสัญจร</title>
+<style>
+  @font-face{font-family:Kanit;font-weight:400;src:url('assets/Kanit-Regular.ttf')}
+  @font-face{font-family:Kanit;font-weight:500;src:url('assets/Kanit-Medium.ttf')}
+  @font-face{font-family:Kanit;font-weight:600;src:url('assets/Kanit-SemiBold.ttf')}
+  @font-face{font-family:Kanit;font-weight:700;src:url('assets/Kanit-Bold.ttf')}
+  @font-face{font-family:Kanit;font-weight:800;src:url('assets/Kanit-ExtraBold.ttf')}
+
+  :root{
+    --bg:#0f172a;
+    --panel:#1e293b;
+    --panel2:#26354d;
+    --card:#ffffff;
+    --border:#334155;
+    --accent:#0ea5e9;
+    --accent2:#2563eb;
+    --green:#16a34a;
+    --amber:#f59e0b;
+    --danger:#ef4444;
+    --text:#f8fafc;
+    --muted:#94a3b8;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Kanit', -apple-system, BlinkMacSystemFont, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+
+  /* Topbar */
+  .topbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:10px 20px;
+    background:linear-gradient(90deg,#0b2545,#133b6e);
+    border-bottom:1px solid #1e4976;
+    gap:14px;
+    flex-shrink:0;
+  }
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand img{width:42px;height:42px;border-radius:50%;border:2px solid #fff;background:#fff}
+  .brand h1{font-size:19px;font-weight:700;line-height:1.15;color:#fff}
+  .brand small{display:block;font-size:12.5px;font-weight:400;color:#93c5fd}
+
+  .actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .btn{
+    font-family:inherit;
+    font-size:13.5px;
+    font-weight:600;
+    padding:7px 14px;
+    border-radius:10px;
+    border:1px solid transparent;
+    cursor:pointer;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    transition:.15s;
+    text-decoration:none;
+    color:#fff;
+    background:#334155;
+  }
+  .btn:hover{filter:brightness(1.1)}
+  .btn:disabled{opacity:.55;cursor:not-allowed}
+  .btn.primary{background:linear-gradient(135deg,#22c55e,#15803d);border-color:#4ade80;box-shadow:0 4px 12px rgba(22,163,74,.35);font-size:14px;padding:8px 16px}
+  .btn.blue{background:linear-gradient(135deg,#0ea5e9,#2563eb);border-color:#38bdf8}
+  .btn.amber{background:linear-gradient(135deg,#f59e0b,#d97706);border-color:#fbbf24}
+  .btn.ghost{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.18)}
+  .btn.danger{background:rgba(239,68,68,.16);color:#fca5a5;border-color:rgba(239,68,68,.35)}
+
+  /* Workspace Split */
+  .workspace{
+    display:grid;
+    grid-template-columns:560px 1fr;
+    flex:1;
+    min-height:0;
+  }
+
+  /* Left Editor Panel */
+  .editor{
+    background:var(--panel);
+    border-right:1px solid var(--border);
+    display:flex;
+    flex-direction:column;
+    min-height:0;
+  }
+  .tabs{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    background:#0f172a;
+    padding:6px;
+    gap:6px;
+    border-bottom:1px solid var(--border);
+  }
+  .tab{
+    font-family:inherit;
+    padding:8px 10px;
+    border-radius:8px;
+    border:none;
+    background:transparent;
+    color:var(--muted);
+    font-size:13.5px;
+    font-weight:600;
+    cursor:pointer;
+    transition:.15s;
+  }
+  .tab.active{background:var(--accent2);color:#fff;box-shadow:0 2px 8px rgba(37,99,235,.35)}
+
+  .toolbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:10px 14px;
+    background:rgba(15,23,42,.55);
+    border-bottom:1px solid var(--border);
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .qfilters{display:flex;gap:4px;flex-wrap:wrap}
+  .qbtn{
+    font-family:inherit;
+    font-size:12px;
+    font-weight:600;
+    padding:4px 10px;
+    border-radius:999px;
+    border:1px solid var(--border);
+    background:#1e293b;
+    color:#cbd5e1;
+    cursor:pointer;
+  }
+  .qbtn.active{background:#38bdf8;color:#0f172a;border-color:#38bdf8}
+
+  .scroll-area{
+    flex:1;
+    overflow-y:auto;
+    padding:12px 14px 28px;
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+
+  /* Session Card in Editor */
+  .s-card{
+    background:var(--panel2);
+    border:1px solid #3b4f6b;
+    border-left:5px solid var(--cc,#38bdf8);
+    border-radius:12px;
+    padding:10px 12px;
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    transition:.15s;
+  }
+  .s-card:hover{border-color:#60a5fa}
+  .s-top{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+  }
+  .s-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .qpill{
+    background:#fef08a;
+    color:#0f172a;
+    font-size:11.5px;
+    font-weight:800;
+    padding:1px 8px;
+    border-radius:999px;
+  }
+  .cpill{
+    background:var(--cc,#0ea5e9);
+    color:#fff;
+    font-size:11.5px;
+    font-weight:700;
+    padding:1px 8px;
+    border-radius:999px;
+  }
+  .s-title{font-size:13px;font-weight:600;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:290px}
+  .del-btn{
+    background:transparent;
+    border:none;
+    color:#f87171;
+    font-size:12px;
+    font-family:inherit;
+    cursor:pointer;
+    padding:2px 6px;
+    border-radius:6px;
+  }
+  .del-btn:hover{background:rgba(239,68,68,.2)}
+
+  .grid-row{
+    display:grid;
+    grid-template-columns:1.35fr 1.05fr 0.65fr 0.95fr;
+    gap:6px;
+  }
+  .grid-row2{
+    display:grid;
+    grid-template-columns:1.3fr 0.6fr 1.1fr;
+    gap:6px;
+  }
+  label.fld{
+    display:flex;
+    flex-direction:column;
+    gap:3px;
+    font-size:11.5px;
+    color:#94a3b8;
+    font-weight:500;
+    min-width:0;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  label.fld.hi{color:#7dd3fc;font-weight:700}
+  input, select, textarea{
+    font-family:inherit;
+    font-size:12.5px;
+    font-weight:600;
+    color:#f8fafc;
+    background:#0f172a;
+    border:1px solid #475569;
+    border-radius:8px;
+    padding:5px 6px;
+    outline:none;
+    width:100%;
+    min-width:0;
+  }
+  label.fld.hi select{
+    background:#0c2d48;
+    border-color:#38bdf8;
+    color:#fff;
+    font-size:13.5px;
+  }
+  input:focus, select:focus, textarea:focus{border-color:#38bdf8;box-shadow:0 0 0 2px rgba(56,189,248,.25)}
+
+  /* Preview Panel */
+  .viewer{
+    display:flex;
+    flex-direction:column;
+    background:#0b1120;
+    min-height:0;
+  }
+  .v-bar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:10px 18px;
+    background:#111c33;
+    border-bottom:1px solid var(--border);
+    gap:10px;
+    flex-wrap:wrap;
+  }
+  .poster-tabs{display:flex;gap:6px;flex-wrap:wrap}
+  .ptab{
+    font-family:inherit;
+    font-size:13px;
+    font-weight:600;
+    padding:6px 12px;
+    border-radius:9px;
+    border:1px solid #334155;
+    background:#1e293b;
+    color:#cbd5e1;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .ptab.active{background:#0ea5e9;color:#fff;border-color:#38bdf8}
+  .vmode{display:flex;gap:4px;background:#0f172a;padding:3px;border-radius:9px;border:1px solid #334155}
+  .vmbtn{
+    font-family:inherit;
+    font-size:12px;
+    font-weight:600;
+    padding:4px 10px;
+    border-radius:6px;
+    border:none;
+    background:transparent;
+    color:#94a3b8;
+    cursor:pointer;
+  }
+  .vmbtn.active{background:#334155;color:#fff}
+
+  .canvas-wrap{
+    flex:1;
+    overflow:auto;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    padding:20px;
+    position:relative;
+  }
+
+  /* Single Scaled Poster Frame */
+  .frame-holder{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:10px;
+  }
+  .scale-box{
+    width:648px;
+    height:810px;
+    position:relative;
+    border-radius:16px;
+    overflow:hidden;
+    box-shadow:0 20px 50px rgba(0,0,0,.6);
+    border:2px solid #334155;
+    background:#d8f1ff;
+  }
+  .scale-box iframe{
+    width:1080px;
+    height:1350px;
+    border:none;
+    transform:scale(0.6);
+    transform-origin:top left;
+    pointer-events:none;
+  }
+  .scale-box img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+  }
+
+  /* 5-Poster Grid */
+  .grid-all{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(340px, 1fr));
+    gap:20px;
+    width:100%;
+    max-width:1400px;
+    justify-items:center;
+  }
+  .mini-card{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:8px;
+    background:#162238;
+    padding:12px;
+    border-radius:16px;
+    border:1px solid #2d3f5e;
+  }
+  .mini-head{
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:13.5px;
+    font-weight:700;
+    color:#e2e8f0;
+  }
+  .mini-scale{
+    width:345.6px;
+    height:432px;
+    position:relative;
+    border-radius:10px;
+    overflow:hidden;
+    border:1px solid #475569;
+    background:#d8f1ff;
+    cursor:pointer;
+  }
+  .mini-scale iframe{
+    width:1080px;
+    height:1350px;
+    border:none;
+    transform:scale(0.32);
+    transform-origin:top left;
+    pointer-events:none;
+  }
+  .mini-scale img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+  }
+
+  /* Toast / Status Banner */
+  .status-bar{
+    padding:8px 18px;
+    background:#09101f;
+    border-top:1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    font-size:12.5px;
+    color:#94a3b8;
+  }
+  .toast{
+    position:fixed;
+    bottom:46px;
+    right:24px;
+    background:#15803d;
+    color:#fff;
+    padding:10px 18px;
+    border-radius:12px;
+    font-weight:600;
+    font-size:14px;
+    box-shadow:0 10px 25px rgba(0,0,0,.45);
+    border:1px solid #4ade80;
+    z-index:999;
+    display:none;
+  }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="assets/logo.png" alt="MWA">
+    <div>
+      <h1>ระบบแก้ไขจังหวัดและสร้างโปสเตอร์ "ประปาสัญจร"</h1>
+      <small>แก้ไขจังหวัด วันเวลา หรือหลักสูตร แล้วดูตัวอย่างสดหรือสั่งสร้างไฟล์รูป PNG (2160×2700 px) ได้ทันที</small>
+    </div>
+  </div>
+  <div class="actions">
+    <button class="btn ghost" onclick="resetDefault()" title="คืนค่าข้อมูลเริ่มต้นของปีงบประมาณ 2570">↺ คืนค่าเริ่มต้น</button>
+    <button class="btn blue" id="btnGenCurrent" onclick="generatePNG(true)">🖼️ สร้างรูปเฉพาะหน้านี้</button>
+    <button class="btn primary" id="btnGenAll" onclick="generatePNG(false)">⚡ สั่งสร้างรูป PNG ทั้ง 5 ภาพ</button>
+    <a class="btn amber" href="/api/download-zip" id="btnZip">📦 ดาวน์โหลด ZIP (5 ภาพ)</a>
+    <button class="btn ghost" onclick="openOutputFolder()">📂 เปิดโฟลเดอร์รูป</button>
+  </div>
+</header>
+
+<div class="workspace">
+  <!-- Left Editor -->
+  <aside class="editor">
+    <div class="tabs">
+      <button class="tab active" id="tabBtn-sessions" onclick="switchTab('sessions')">📍 รุ่นและจังหวัด (<span id="sessCount">11</span>)</button>
+      <button class="tab" id="tabBtn-courses" onclick="switchTab('courses')">📚 หลักสูตร (7)</button>
+      <button class="tab" id="tabBtn-general" onclick="switchTab('general')">⚙️ ข้อมูลติดต่อ/หัวกระดาษ</button>
+    </div>
+
+    <!-- Tab 1: Sessions & Provinces -->
+    <div id="tab-sessions" style="display:flex;flex-direction:column;flex:1;min-height:0">
+      <div class="toolbar">
+        <div class="qfilters">
+          <button class="qbtn active" data-q="all" onclick="setQFilter('all')">ทั้งหมด</button>
+          <button class="qbtn" data-q="1" onclick="setQFilter(1)">Q1 (ต.ค.–ธ.ค.)</button>
+          <button class="qbtn" data-q="2" onclick="setQFilter(2)">Q2 (ม.ค.–มี.ค.)</button>
+          <button class="qbtn" data-q="3" onclick="setQFilter(3)">Q3 (เม.ย.–มิ.ย.)</button>
+          <button class="qbtn" data-q="4" onclick="setQFilter(4)">Q4 (ก.ค.–ก.ย.)</button>
+        </div>
+        <button class="btn blue" style="padding:4px 10px;font-size:12px" onclick="addSession()">+ เพิ่มรุ่นอบรม</button>
+      </div>
+      <div class="scroll-area" id="sessionsList"></div>
+    </div>
+
+    <!-- Tab 2: Courses -->
+    <div id="tab-courses" style="display:none;flex-direction:column;flex:1;min-height:0">
+      <div class="scroll-area" id="coursesList"></div>
+    </div>
+
+    <!-- Tab 3: General Info -->
+    <div id="tab-general" style="display:none;flex-direction:column;flex:1;min-height:0">
+      <div class="scroll-area" id="generalForm"></div>
+    </div>
+  </aside>
+
+  <!-- Right Preview & Outputs -->
+  <main class="viewer">
+    <div class="v-bar">
+      <div class="poster-tabs" id="posterTabs">
+        <button class="ptab active" data-idx="0" onclick="selectPoster(0)">🗺️ ภาพรวมทั้งปี</button>
+        <button class="ptab" data-idx="1" onclick="selectPoster(1)">ไตรมาส 1</button>
+        <button class="ptab" data-idx="2" onclick="selectPoster(2)">ไตรมาส 2</button>
+        <button class="ptab" data-idx="3" onclick="selectPoster(3)">ไตรมาส 3</button>
+        <button class="ptab" data-idx="4" onclick="selectPoster(4)">ไตรมาส 4</button>
+        <button class="ptab" data-idx="all" onclick="selectPoster('all')">🪟 ดูทั้ง 5 ภาพพร้อมกัน</button>
+      </div>
+      <div class="vmode">
+        <button class="vmbtn active" id="vm-html" onclick="setViewMode('html')">ตัวอย่างสด (HTML)</button>
+        <button class="vmbtn" id="vm-png" onclick="setViewMode('png')">ไฟล์รูป PNG ที่สร้างแล้ว</button>
+      </div>
+    </div>
+
+    <div class="canvas-wrap" id="canvasWrap"></div>
+
+    <div class="status-bar">
+      <div id="statusText">พร้อมใช้งาน — แก้ไขจังหวัดทางด้านซ้าย ตัวอย่างโปสเตอร์จะอัปเดตอัตโนมัติ</div>
+      <div>ขนาดภาพมาตรฐาน: <b>2160 × 2700 px (4:5 Facebook Carousel)</b></div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const MONTHS = [
+  {v:10, name:"ตุลาคม (Q1)"},
+  {v:11, name:"พฤศจิกายน (Q1)"},
+  {v:12, name:"ธันวาคม (Q1)"},
+  {v:1,  name:"มกราคม (Q2)"},
+  {v:2,  name:"กุมภาพันธ์ (Q2)"},
+  {v:3,  name:"มีนาคม (Q2)"},
+  {v:4,  name:"เมษายน (Q3)"},
+  {v:5,  name:"พฤษภาคม (Q3)"},
+  {v:6,  name:"มิถุนายน (Q3)"},
+  {v:7,  name:"กรกฎาคม (Q4)"},
+  {v:8,  name:"สิงหาคม (Q4)"},
+  {v:9,  name:"กันยายน (Q4)"},
+];
+
+let STATE = null;
+let PROVINCES = [];
+let OUTPUTS = [];
+let currentQFilter = 'all';
+let currentPoster = 0; // 0..4 or 'all'
+let viewMode = 'html'; // 'html' or 'png'
+let previewTimer = null;
+
+function quarterOf(m){
+  m = Number(m);
+  if ([10,11,12].includes(m)) return 1;
+  if ([1,2,3].includes(m)) return 2;
+  if ([4,5,6].includes(m)) return 3;
+  return 4;
+}
+
+function showToast(msg, bg="#15803d"){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = bg;
+  t.style.display = 'block';
+  clearTimeout(t._tm);
+  t._tm = setTimeout(()=>{ t.style.display = 'none'; }, 3500);
+}
+
+function setStatus(msg){
+  document.getElementById('statusText').innerHTML = msg;
+}
+
+async function init(){
+  try {
+    const res = await fetch('/api/state');
+    const json = await res.json();
+    STATE = json.data;
+    PROVINCES = json.provinces;
+    OUTPUTS = json.outputs;
+    renderAllEditors();
+    renderViewer();
+  } catch (e) {
+    setStatus('⚠️ กรุณาเปิดผ่านเซิร์ฟเวอร์ <code>python3 app.py</code> (http://127.0.0.1:8765)');
+  }
+}
+
+function switchTab(tab){
+  for (const k of ['sessions','courses','general']){
+    document.getElementById('tab-'+k).style.display = (k === tab) ? 'flex' : 'none';
+    document.getElementById('tabBtn-'+k).classList.toggle('active', k === tab);
+  }
+}
+
+function setQFilter(q){
+  currentQFilter = q;
+  document.querySelectorAll('.qbtn').forEach(b=>{
+    b.classList.toggle('active', String(b.dataset.q) === String(q));
+  });
+  renderSessionsEditor();
+  if (q !== 'all') {
+    selectPoster(Number(q));
+  }
+}
+
+function getCourseMap(){
+  const m = {};
+  (STATE.courses || []).forEach(c => m[c.no] = c);
+  return m;
+}
+
+function renderAllEditors(){
+  renderSessionsEditor();
+  renderCoursesEditor();
+  renderGeneralEditor();
+}
+
+function renderSessionsEditor(){
+  const wrap = document.getElementById('sessionsList');
+  document.getElementById('sessCount').textContent = STATE.sessions.length;
+  const cmap = getCourseMap();
+  const cats = STATE.categories || {};
+
+  let html = '';
+  STATE.sessions.forEach((s, idx) => {
+    const q = quarterOf(s.month);
+    if (currentQFilter !== 'all' && q !== Number(currentQFilter)) return;
+    const c = cmap[s.course] || STATE.courses[0];
+    const cat = cats[c.cat] || {color:'#0ea5e9'};
+
+    const provOptions = PROVINCES.map(p =>
+      `<option value="${p}" ${p === s.province ? 'selected' : ''}>${p}</option>`
+    ).join('');
+
+    const courseOptions = STATE.courses.map(co =>
+      `<option value="${co.no}" ${Number(co.no) === Number(s.course) ? 'selected' : ''}>#${co.no} ${co.short}</option>`
+    ).join('');
+
+    const monthOptions = MONTHS.map(mo =>
+      `<option value="${mo.v}" ${Number(mo.v) === Number(s.month) ? 'selected' : ''}>${mo.name}</option>`
+    ).join('');
+
+    const lbl = s.label || 'auto';
+
+    html += `
+    <div class="s-card" style="--cc:${cat.color}">
+      <div class="s-top">
+        <div class="s-badges">
+          <span class="qpill">ไตรมาส ${q}</span>
+          <span class="cpill">หลักสูตร #${c.no} (${c.cat})</span>
+          <span class="s-title" title="${c.title}">${c.short}</span>
+        </div>
+        <button class="del-btn" onclick="removeSession(${idx})" title="ลบรุ่นนี้">✕ ลบ</button>
+      </div>
+
+      <div class="grid-row">
+        <label class="fld hi">
+          📍 จังหวัดที่จัดอบรม
+          <select onchange="updateSessionProvince(${idx}, this.value)">
+            ${provOptions}
+          </select>
+        </label>
+        <label class="fld">
+          🗓️ เดือนที่จัด
+          <select onchange="updateSessionMonth(${idx}, this.value)">
+            ${monthOptions}
+          </select>
+        </label>
+        <label class="fld">
+          ปี พ.ศ.
+          <input type="number" value="${s.year}" onchange="updateSessionField(${idx}, 'year', Number(this.value))">
+        </label>
+        <label class="fld">
+          ป้ายชื่อบนแผนที่
+          <select onchange="updateSessionField(${idx}, 'label', this.value)">
+            <option value="auto" ${lbl==='auto'?'selected':''}>อัตโนมัติ</option>
+            <option value="right" ${lbl==='right'?'selected':''}>ขวา (Right)</option>
+            <option value="left" ${lbl==='left'?'selected':''}>ซ้าย (Left)</option>
+            <option value="top" ${lbl==='top'?'selected':''}>บน (Top)</option>
+            <option value="bottom" ${lbl==='bottom'?'selected':''}>ล่าง (Bottom)</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="grid-row2">
+        <label class="fld">
+          📚 หลักสูตร
+          <select onchange="updateSessionField(${idx}, 'course', Number(this.value))">
+            ${courseOptions}
+          </select>
+        </label>
+        <label class="fld">
+          🔢 รุ่นที่
+          <input type="number" min="1" max="20" value="${s.run}" onchange="updateSessionField(${idx}, 'run', Number(this.value))">
+        </label>
+        <label class="fld">
+          🏢 สถานที่เพิ่มเติม (ถ้ามี)
+          <input type="text" placeholder="เช่น สำนักงานใหญ่ กปน." value="${s.venue || ''}" onchange="updateSessionField(${idx}, 'venue', this.value)">
+        </label>
+      </div>
+    </div>`;
+  });
+
+  if (!html) {
+    html = `<div style="text-align:center;padding:30px;color:#94a3b8">ไม่มีรุ่นอบรมในไตรมาสนี้ กดปุ่ม "+ เพิ่มรุ่นอบรม" ด้านบนได้</div>`;
+  }
+  wrap.innerHTML = html;
+}
+
+function renderCoursesEditor(){
+  const wrap = document.getElementById('coursesList');
+  const cats = STATE.categories || {};
+  wrap.innerHTML = STATE.courses.map((c, idx) => {
+    const cat = cats[c.cat] || {color:'#0ea5e9'};
+    return `
+    <div class="s-card" style="--cc:${cat.color}">
+      <div class="s-top">
+        <div class="s-badges">
+          <span class="cpill">หลักสูตรที่ ${c.no}</span>
+          <span style="font-size:12.5px;color:#cbd5e1">หมวด ${c.cat}</span>
+        </div>
+        <label style="font-size:12.5px;display:flex;align-items:center;gap:5px;cursor:pointer">
+          <input type="checkbox" ${c.is_new ? 'checked' : ''} onchange="updateCourseField(${idx}, 'is_new', this.checked)">
+          ติดป้าย NEW (หลักสูตรใหม่)
+        </label>
+      </div>
+      <label class="fld">
+        ชื่อหลักสูตรเต็ม (แสดงในการ์ดรายไตรมาส)
+        <textarea rows="2" onchange="updateCourseField(${idx}, 'title', this.value)">${c.title}</textarea>
+      </label>
+      <div class="grid-row">
+        <label class="fld" style="grid-column:span 2">
+          ชื่อย่อ (แสดงในหน้าภาพรวม)
+          <input type="text" value="${c.short}" onchange="updateCourseField(${idx}, 'short', this.value)">
+        </label>
+        <label class="fld">
+          ค่าลงทะเบียน (บาท)
+          <input type="number" value="${c.fee}" onchange="updateCourseField(${idx}, 'fee', Number(this.value))">
+        </label>
+        <label class="fld">
+          จำนวนรับ (คน)
+          <input type="number" value="${c.seats}" onchange="updateCourseField(${idx}, 'seats', Number(this.value))">
+        </label>
+      </div>
+      <div class="grid-row2">
+        <label class="fld">
+          หมวดวิชา
+          <select onchange="updateCourseField(${idx}, 'cat', this.value)">
+            <option value="2.1" ${c.cat==='2.1'?'selected':''}>2.1 ไฟฟ้า IoT & พลังงานทดแทน</option>
+            <option value="2.2" ${c.cat==='2.2'?'selected':''}>2.2 ระบบส่งและจ่ายน้ำ</option>
+            <option value="2.3" ${c.cat==='2.3'?'selected':''}>2.3 น้ำดิบ & ระบบผลิตน้ำ</option>
+          </select>
+        </label>
+        <label class="fld">
+          จำนวนวันอบรม
+          <input type="number" value="${c.days}" onchange="updateCourseField(${idx}, 'days', Number(this.value))">
+        </label>
+        <label class="fld">
+          หมายเหตุค่าลงทะเบียน (ถ้ามี)
+          <input type="text" placeholder="เช่น รวมที่พัก..." value="${c.fee_note || ''}" onchange="updateCourseField(${idx}, 'fee_note', this.value)">
+        </label>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderGeneralEditor(){
+  const wrap = document.getElementById('generalForm');
+  const ct = STATE.contact || {};
+  wrap.innerHTML = `
+  <div class="s-card" style="--cc:#38bdf8">
+    <label class="fld">
+      ปีงบประมาณ (พ.ศ.)
+      <input type="text" value="${STATE.fiscal_year}" onchange="updateRootField('fiscal_year', this.value)">
+    </label>
+    <label class="fld">
+      หัวข้อหลักโปสเตอร์
+      <input type="text" value="${STATE.title}" onchange="updateRootField('title', this.value)">
+    </label>
+    <label class="fld">
+      คำโปรยกลุ่มเป้าหมาย
+      <input type="text" value="${STATE.subtitle}" onchange="updateRootField('subtitle', this.value)">
+    </label>
+    <label class="fld">
+      หน่วยงานติดต่อ
+      <input type="text" value="${ct.org || ''}" onchange="updateContactField('org', this.value)">
+    </label>
+    <label class="fld">
+      เบอร์โทรศัพท์
+      <input type="text" value="${ct.tel || ''}" onchange="updateContactField('tel', this.value)">
+    </label>
+    <label class="fld">
+      LINE Official
+      <input type="text" value="${ct.line || ''}" onchange="updateContactField('line', this.value)">
+    </label>
+    <label class="fld">
+      Facebook Page
+      <input type="text" value="${ct.fb || ''}" onchange="updateContactField('fb', this.value)">
+    </label>
+    <label class="fld">
+      หมายเหตุท้ายโปสเตอร์
+      <input type="text" value="${STATE.note || ''}" onchange="updateRootField('note', this.value)">
+    </label>
+  </div>`;
+}
+
+function updateSessionProvince(idx, prov){
+  STATE.sessions[idx].province = prov;
+  schedulePreview(`เปลี่ยนจังหวัดเป็น "${prov}" เรียบร้อย`);
+}
+
+function updateSessionMonth(idx, monthVal){
+  const m = Number(monthVal);
+  const fy = Number(STATE.fiscal_year) || 2570;
+  STATE.sessions[idx].month = m;
+  STATE.sessions[idx].year = [10,11,12].includes(m) ? (fy - 1) : fy;
+  renderSessionsEditor();
+  schedulePreview(`เปลี่ยนเดือนเป็นเดือนที่ ${m} (ไตรมาส ${quarterOf(m)})`);
+}
+
+function updateSessionField(idx, key, val){
+  if (key === 'venue' && !val.trim()) {
+    delete STATE.sessions[idx].venue;
+  } else if (key === 'label' && val === 'auto') {
+    delete STATE.sessions[idx].label;
+  } else {
+    STATE.sessions[idx][key] = val;
+  }
+  if (key === 'course') renderSessionsEditor();
+  schedulePreview('อัปเดตข้อมูลรุ่นอบรมเรียบร้อย');
+}
+
+function addSession(){
+  const fy = Number(STATE.fiscal_year) || 2570;
+  const defMonth = currentQFilter === 1 ? 11 : currentQFilter === 2 ? 2 : currentQFilter === 3 ? 5 : currentQFilter === 4 ? 8 : 1;
+  const defYear = [10,11,12].includes(defMonth) ? (fy - 1) : fy;
+  STATE.sessions.push({
+    course: 1,
+    run: 1,
+    month: defMonth,
+    year: defYear,
+    province: "เชียงใหม่",
+  });
+  renderSessionsEditor();
+  schedulePreview('เพิ่มรุ่นอบรมใหม่เรียบร้อย');
+}
+
+function removeSession(idx){
+  const s = STATE.sessions[idx];
+  if (!confirm(`ต้องการลบรุ่นอบรม จ.${s.province} ใช่หรือไม่?`)) return;
+  STATE.sessions.splice(idx, 1);
+  renderSessionsEditor();
+  schedulePreview('ลบรุ่นอบรมเรียบร้อย');
+}
+
+function updateCourseField(idx, key, val){
+  if (key === 'fee_note' && !val.trim()) {
+    delete STATE.courses[idx].fee_note;
+  } else {
+    STATE.courses[idx][key] = val;
+  }
+  renderSessionsEditor();
+  schedulePreview('อัปเดตข้อมูลหลักสูตรเรียบร้อย');
+}
+
+function updateRootField(key, val){
+  STATE[key] = val;
+  schedulePreview('อัปเดตข้อมูลทั่วไปเรียบร้อย');
+}
+
+function updateContactField(key, val){
+  STATE.contact[key] = val;
+  schedulePreview('อัปเดตข้อมูลติดต่อเรียบร้อย');
+}
+
+function schedulePreview(toastMsg){
+  clearTimeout(previewTimer);
+  setStatus('⏳ กำลังอัปเดตตัวอย่างโปสเตอร์...');
+  previewTimer = setTimeout(async () => {
+    try {
+      const res = await fetch('/api/preview', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({data: STATE})
+      });
+      const json = await res.json();
+      if (!json.ok) throw new Error(json.error);
+      OUTPUTS = json.outputs;
+      // Switch to live HTML preview so user sees changes immediately
+      if (viewMode !== 'html') {
+        viewMode = 'html';
+        document.getElementById('vm-html').classList.add('active');
+        document.getElementById('vm-png').classList.remove('active');
+      }
+      renderViewer();
+      setStatus('✅ อัปเดตตัวอย่างสด (HTML) เรียบร้อย — กดปุ่ม <b>"⚡ สั่งสร้างรูป PNG ทั้ง 5 ภาพ"</b> ด้านบนเพื่อบันทึกรูปความละเอียดสูง');
+      if (toastMsg) showToast(toastMsg);
+    } catch (e) {
+      setStatus('❌ เกิดข้อผิดพลาด: ' + e.message);
+      showToast('เกิดข้อผิดพลาด: ' + e.message, '#dc2626');
+    }
+  }, 150);
+}
+
+function selectPoster(idx){
+  currentPoster = idx;
+  document.querySelectorAll('.ptab').forEach(b => {
+    b.classList.toggle('active', String(b.dataset.idx) === String(idx));
+  });
+  renderViewer();
+}
+
+function setViewMode(m){
+  viewMode = m;
+  document.getElementById('vm-html').classList.toggle('active', m === 'html');
+  document.getElementById('vm-png').classList.toggle('active', m === 'png');
+  renderViewer();
+}
+
+const POSTER_LABELS = [
+  "ภาพที่ 1: ภาพรวมทั้งปี (Overview)",
+  "ภาพที่ 2: ไตรมาส 1 (ต.ค. – ธ.ค.)",
+  "ภาพที่ 3: ไตรมาส 2 (ม.ค. – มี.ค.)",
+  "ภาพที่ 4: ไตรมาส 3 (เม.ย. – มิ.ย.)",
+  "ภาพที่ 5: ไตรมาส 4 (ก.ค. – ก.ย.)"
+];
+
+function renderViewer(){
+  const wrap = document.getElementById('canvasWrap');
+  if (!OUTPUTS.length) return;
+  const bust = Date.now();
+
+  if (currentPoster === 'all') {
+    wrap.innerHTML = `<div class="grid-all">` + OUTPUTS.map((item, idx) => {
+      const media = (viewMode === 'png' && item.png_url)
+        ? `<img src="${item.png_url}&v=${bust}" alt="${item.name}">`
+        : `<iframe src="${item.html_url}?v=${bust}"></iframe>`;
+      const dlBtn = item.png_url
+        ? `<a class="btn ghost" style="padding:3px 8px;font-size:11.5px" href="${item.png_url}" download="${item.name}.png">⬇ PNG</a>`
+        : '';
+      return `
+      <div class="mini-card">
+        <div class="mini-head">
+          <span>${POSTER_LABELS[idx]}</span>
+          ${dlBtn}
+        </div>
+        <div class="mini-scale" onclick="selectPoster(${idx})" title="คลิกเพื่อขยายดูภาพนี้">
+          ${media}
+        </div>
+      </div>`;
+    }).join('') + `</div>`;
+    return;
+  }
+
+  const idx = Number(currentPoster);
+  const item = OUTPUTS[idx] || OUTPUTS[0];
+  const media = (viewMode === 'png' && item.png_url)
+    ? `<img src="${item.png_url}&v=${bust}" alt="${item.name}">`
+    : `<iframe src="${item.html_url}?v=${bust}"></iframe>`;
+
+  const dlBar = item.png_url
+    ? `<div style="display:flex;gap:10px;align-items:center">
+         <span style="font-size:13px;color:#cbd5e1">${POSTER_LABELS[idx]} — ไฟล์ <b>${item.name}.png</b> (${item.size_kb} KB)</span>
+         <a class="btn blue" style="padding:5px 12px;font-size:12.5px" href="${item.png_url}" download="${item.name}.png">⬇ ดาวน์โหลดรูปนี้ (.PNG)</a>
+       </div>`
+    : `<div style="font-size:13px;color:#cbd5e1">${POSTER_LABELS[idx]}</div>`;
+
+  wrap.innerHTML = `
+    <div class="frame-holder">
+      ${dlBar}
+      <div class="scale-box">${media}</div>
+    </div>`;
+}
+
+async function generatePNG(onlyCurrent){
+  const btnAll = document.getElementById('btnGenAll');
+  const btnCur = document.getElementById('btnGenCurrent');
+  btnAll.disabled = true;
+  btnCur.disabled = true;
+
+  let only = null;
+  if (onlyCurrent && currentPoster !== 'all') {
+    const item = OUTPUTS[Number(currentPoster)];
+    if (item) only = item.name;
+  }
+
+  const label = only ? `ภาพ ${only}.png` : 'รูป PNG ความละเอียดสูงทั้ง 5 ภาพ';
+  setStatus(`⏳ กำลังสั่ง Chrome สร้าง${label} (ขนาด 2160×2700 px)... กรุณารอสักครู่`);
+  showToast(`กำลังสร้าง${label}...`, '#0284c7');
+
+  try {
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({data: STATE, only})
+    });
+    const json = await res.json();
+    if (!json.ok) throw new Error(json.error);
+    OUTPUTS = json.outputs;
+    viewMode = 'png';
+    document.getElementById('vm-html').classList.remove('active');
+    document.getElementById('vm-png').classList.add('active');
+    renderViewer();
+    setStatus(`✅ สร้างไฟล์ PNG เรียบร้อย (${json.rendered.join(', ')}) ใช้เวลา ${json.elapsed_sec} วินาที — บันทึกไว้ในโฟลเดอร์ <code>output/</code> แล้ว`);
+    showToast(`✓ สร้างรูป PNG สำเร็จ (${json.elapsed_sec} วินาที)!`);
+  } catch (e) {
+    setStatus('❌ สร้างรูปไม่สำเร็จ: ' + e.message);
+    showToast('เกิดข้อผิดพลาด: ' + e.message, '#dc2626');
+  } finally {
+    btnAll.disabled = false;
+    btnCur.disabled = false;
+  }
+}
+
+async function resetDefault(){
+  if (!confirm('ต้องการคืนค่าจังหวัดและหลักสูตรทั้งหมดกลับเป็นค่าเริ่มต้นของปีงบประมาณ 2570 ใช่หรือไม่?')) return;
+  const res = await fetch('/api/reset', {method:'POST'});
+  const json = await res.json();
+  if (json.ok){
+    STATE = json.data;
+    OUTPUTS = json.outputs;
+    renderAllEditors();
+    renderViewer();
+    showToast('คืนค่าเริ่มต้นปีงบประมาณ 2570 เรียบร้อย');
+    setStatus('✅ คืนค่าเริ่มต้นเรียบร้อย');
+  }
+}
+
+async function openOutputFolder(){
+  await fetch('/api/open-folder', {method:'POST'});
+  showToast('เปิดโฟลเดอร์ output/ ใน Finder แล้ว');
+}
+
+init();
+</script>
+</body>
+</html>
