@@ -186,7 +186,7 @@ def build_pages(data_path=None):
     D, COURSES, CATS, FY, Q_RANGE, Q_RANGE_FULL, SESS = load_context(data_path)
 
     def header(quarter=None):
-        logo = '<img class="logo" src="../assets/logo.png">'
+        logo = '<div class="logos"><img class="logo" src="../assets/logo.png"><div class="sep"></div><img class="wps" src="../assets/wps-lockup.svg"></div>'
         if quarter is None:
             return f'''
 <header class="hd">

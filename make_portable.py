@@ -44,6 +44,7 @@ def build_portable_bundle():
 
     bg_uri = b64_data_uri("assets/bg.jpg", "image/jpeg")
     logo_uri = b64_data_uri("assets/logo.png", "image/png")
+    wps_uri = b64_data_uri("assets/wps-lockup.svg", "image/svg+xml")
     m4_uri = b64_data_uri("assets/m4.png", "image/png")
     m5_uri = b64_data_uri("assets/m5.png", "image/png")
 
@@ -65,6 +66,7 @@ def build_portable_bundle():
         "assets": {
             "bg": bg_uri,
             "logo": logo_uri,
+            "wps": wps_uri,
             "m4": m4_uri,
             "m5": m5_uri,
         },
@@ -615,7 +617,7 @@ function buildAllPages(D){
   }).sort((a,b) => (a.year - b.year) || (a.month - b.month) || (a.course - b.course) || (a.run - b.run));
 
   function headerHTML(quarter=null){
-    const logo = `<img class="logo" src="${BUNDLE.assets.logo}" alt="logo"/>`;
+    const logo = `<div class="logos"><img class="logo" src="${BUNDLE.assets.logo}" alt="logo"/><div class="sep"></div><img class="wps" src="${BUNDLE.assets.wps}" alt="กวช. WPS"/></div>`;
     if (quarter === null){
       return `<header class="hd"><h1>${D.title}<br/><span>ปีงบประมาณ ${fy}</span></h1>${logo}</header>` +
              `<div class="banner"><div>สำหรับองค์กรปกครองส่วนท้องถิ่น</div><div>หน่วยงานราชการ และภาคเอกชน</div></div>`;
